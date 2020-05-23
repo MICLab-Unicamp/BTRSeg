@@ -1,0 +1,8 @@
+name: BTRSeg
+
+# docker_env:
+# TODO
+
+entry_points:
+    pre_process:
+        command: "python3 src/brats_preprocess.py"
