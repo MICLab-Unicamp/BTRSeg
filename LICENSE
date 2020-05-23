@@ -1,4 +1,16 @@
-MIT License
+The following statements refer to libraries used on this work.
+
+Copyrights for NumPy, SciPy, PyTorch, Scikit-learn, OpenCV, are held by, respectively, NumPy Developers, SciPy Developers, Facebook Inc, scikit-learn developers, Intel Corporation and are provided under the BSD 3-Clause license (https://opensource.org/licenses/BSD-3-Clause).
+
+Copyrightt for PyTorch Lightning is held by William Falcon and its use is under the Apache License (http://www.apache.org/licenses/LICENSE-2.0).
+
+Copyrights for matplotlib and python are held by matplotlib Development Team and Python Software Foundation and their use is under the Python Software Foundation License (https://docs.python.org/3/license.html)
+
+Copyrights for tqdm and NiBabel are held by noamraph and Matthew Brett and their use is under the MIT License.
+
+---------------------------------------------------------------------------------------------------------------
+
+BTRSeg is under the MIT License
 
 Copyright (c) 2020 Diedre Carmo
 
