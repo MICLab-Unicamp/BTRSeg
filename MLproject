@@ -5,4 +5,10 @@ name: BTRSeg
 
 entry_points:
     pre_process:
-        command: "python3 src/brats_preprocess.py"
+        parameters:
+            data_path: path
+        command: "python3 src/brats_preprocess.py --data_path {data_path}"
+    visualize:
+        parameters:
+            input: path
+        command: "python3 src/visualize_npz.py --input {input} --no_display"

@@ -1,0 +1,15 @@
+artifact_uri: file:///home/diedre/git/BTRSeg/mlruns/0/68ecb0d7dab44b99b7be4e7d7c9c6b50/artifacts
+end_time: 1590449358980
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: deleted
+name: ''
+run_id: 68ecb0d7dab44b99b7be4e7d7c9c6b50
+run_uuid: 68ecb0d7dab44b99b7be4e7d7c9c6b50
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1590449358963
+status: 4
+tags: []
+user_id: diedre

@@ -3,7 +3,7 @@ This module reads the original BratS 2020 data and saves preprocessed .npz files
 
 Performs the same pre-processing done by Isensee Et Al.
 Mean STD with clips for outliers in [-5, 5] and subsequent normalization to [0, 1]
-Nothing is done with targets
+Nothing is done with targets, only permutation of channel posisitions.
 
 Save specifications follow Medical Segmentation Decatlhon JSON
 
@@ -26,9 +26,6 @@ Save specifications follow Medical Segmentation Decatlhon JSON
 	 "2": "edema",
 	 "4": "enhancing tumour"
  }
-
-TODO:
-    -Everything
 '''
 import glob
 import os
@@ -38,11 +35,18 @@ import multiprocessing as mp
 import nibabel
 import pandas as pd
 import mlflow
+import argparse
 import datetime
 from tqdm import tqdm
 
 
-DATA_PATH = "/home/diedre/Dropbox/bigdata/brats/2020/train"
+parser = argparse.ArgumentParser()
+parser.add_argument('--data_path', default="/home/diedre/Dropbox/bigdata/brats/2020/train")
+args = parser.parse_args()
+DATA_PATH = args.data_path
+
+assert os.path.isdir(DATA_PATH), "DATA_PATH {DATA_PATH} is not a folder."
+
 
 def worker(subject):
     folder = os.path.join(DATA_PATH, subject)
