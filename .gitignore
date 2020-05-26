@@ -2,3 +2,7 @@ cache
 .vscode
 logs
 .ipynb_checkpoints
+*.npz
+*.nii.gz
+*.nii
+*.zip
