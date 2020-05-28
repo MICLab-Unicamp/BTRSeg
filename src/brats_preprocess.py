@@ -144,6 +144,7 @@ if __name__ == "__main__":
         logs += log
     print("Done.")
 
+    os.makedirs("logs", exist_ok=True)  # for safety
     logpath = "logs/" + str(datetime.datetime.now()) + ".txt"
 
     with open(logpath, 'w') as logfile:

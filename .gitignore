@@ -1,7 +1,11 @@
 cache
 .vscode
 logs
+__pycache__
 .ipynb_checkpoints
 *.npz
 *.nii.gz
 *.nii
+*.zip
+*.pyc
+MICCAI_BraTS2020_TrainingData
