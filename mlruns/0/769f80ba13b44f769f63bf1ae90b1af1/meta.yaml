@@ -2,7 +2,7 @@ artifact_uri: file:///home/diedre/git/BTRSeg/mlruns/0/769f80ba13b44f769f63bf1ae9
 end_time: 1590626282097
 entry_point_name: ''
 experiment_id: '0'
-lifecycle_stage: active
+lifecycle_stage: deleted
 name: ''
 run_id: 769f80ba13b44f769f63bf1ae90b1af1
 run_uuid: 769f80ba13b44f769f63bf1ae90b1af1
