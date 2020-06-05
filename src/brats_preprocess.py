@@ -8,23 +8,23 @@ Nothing is done with targets, only permutation of channel posisitions.
 Save specifications follow Medical Segmentation Decatlhon JSON
 
 "modality": {
-	 "0": "FLAIR",
-	 "1": "T1w",
-	 "2": "t1gd",
-	 "3": "T2w"
+     "0": "FLAIR",
+     "1": "T1w",
+     "2": "t1gd",
+     "3": "T2w"
  },
  "labels": {
-	 "0": "background",
-	 "1": "edema",
-	 "2": "non-enhancing tumor",
-	 "3": "enhancing tumour"
+     "0": "background",
+     "1": "edema",
+     "2": "non-enhancing tumor",
+     "3": "enhancing tumour"
 
 
      "originals": {
-	 "0": "background",
+     "0": "background",
      "1": "non-enhancing tumor",
-	 "2": "edema",
-	 "4": "enhancing tumour"
+     "2": "edema",
+     "4": "enhancing tumour"
  }
 '''
 import glob
@@ -37,7 +37,6 @@ import pandas as pd
 import mlflow
 import argparse
 import datetime
-from tqdm import tqdm
 
 
 parser = argparse.ArgumentParser()
@@ -116,6 +115,7 @@ def worker(subject):
 
     return log
 
+
 def search_for_file_in_folder(dict_ref, folder_path, key):
     try:
         path = glob.glob(os.path.join(folder_path, f"*{key}*"))[0]
@@ -135,7 +135,7 @@ if __name__ == "__main__":
 
     subjects = ["BraTS20_Training_" + str(i).zfill(3) for i in range(1, 370)]
 
-    cpu_count = mp.cpu_count() - 2
+    cpu_count = max(mp.cpu_count() - 2, 2)
     pool = mp.Pool(processes=cpu_count)
     logs = 'Logs for pre_process run\n\n'
 
