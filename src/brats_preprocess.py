@@ -37,6 +37,7 @@ import pandas as pd
 import mlflow
 import argparse
 import datetime
+from tqdm import tqdm
 
 
 parser = argparse.ArgumentParser()
@@ -135,12 +136,12 @@ if __name__ == "__main__":
 
     subjects = ["BraTS20_Training_" + str(i).zfill(3) for i in range(1, 370)]
 
-    cpu_count = max(mp.cpu_count() - 2, 2)
+    cpu_count = max(mp.cpu_count() - 1, 1)
     pool = mp.Pool(processes=cpu_count)
     logs = 'Logs for pre_process run\n\n'
 
-    print("Pre processing...")
-    for log in pool.imap_unordered(worker, subjects):
+    print(f"Pre processing with {cpu_count} cores...")
+    for log in tqdm(pool.imap_unordered(worker, subjects), total=len(subjects), leave=True, position=0):
         logs += log
     print("Done.")
 
