@@ -41,11 +41,11 @@ from tqdm import tqdm
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--data_path', default="/home/diedre/Dropbox/bigdata/brats/2020/train")
+parser.add_argument('--data_path', default="/home/diedre/Dropbox/bigdata/brats/2020/MICCAI_BraTS2020_TrainingData")
 args = parser.parse_args()
 DATA_PATH = args.data_path
 
-assert os.path.isdir(DATA_PATH), "DATA_PATH {DATA_PATH} is not a folder."
+assert os.path.isdir(DATA_PATH), f"DATA_PATH {DATA_PATH} is not a folder."
 
 
 def worker(subject):
@@ -119,7 +119,10 @@ def worker(subject):
 
 def search_for_file_in_folder(dict_ref, folder_path, key):
     try:
-        path = glob.glob(os.path.join(folder_path, f"*{key}*"))[0]
+        path = glob.glob(os.path.join(folder_path, f"*{key}.nii.gz"))
+        if key != "seg":
+            assert len(path) == 1
+        path = path[0]
         dict_ref[key] = path
     except Exception:
         if key == "seg":
