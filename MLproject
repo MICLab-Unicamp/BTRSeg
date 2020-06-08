@@ -1,7 +1,8 @@
 name: BTRSeg
 
-# docker_env:
-# TODO
+docker_env:
+    image: dscarmo/btrseg
+    volumes: ["./:/opt/btrseg"]
 
 entry_points:
     pre_process:
@@ -12,3 +13,5 @@ entry_points:
         parameters:
             input: path
         command: "python3 src/visualize_npz.py --input {input} --no_display"
+    docker_test:
+        command: "python3 src/docker_test.py"
