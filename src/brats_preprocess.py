@@ -110,7 +110,8 @@ def worker(subject):
 
     save_name = os.path.join(dst, f"{os.path.basename(dst)}_preprocessed.npz")
 
-    np.savez_compressed(save_name, data=save_data, target=save_seg, tumor_type=tumor_type, age=age, survival=survival, res=res)
+    np.savez_compressed(save_name, data=save_data, target=save_seg, tumor_type=tumor_type, age=age, survival=survival,
+                        res=res)
 
     log += f"\nSaved in: {save_name}\n\n"
 
