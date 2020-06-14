@@ -42,6 +42,7 @@ from tqdm import tqdm
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--data_path', default="/home/diedre/Dropbox/bigdata/brats/2020/MICCAI_BraTS2020_TrainingData")
+parser.add_argument('--nworkers', default="auto")
 args = parser.parse_args()
 DATA_PATH = args.data_path
 
@@ -140,11 +141,15 @@ if __name__ == "__main__":
 
     subjects = ["BraTS20_Training_" + str(i).zfill(3) for i in range(1, 370)]
 
-    cpu_count = max(mp.cpu_count() - 1, 1)
+    if args.nworkers != "auto":
+        cpu_count = args.nworkers
+    else:
+        cpu_count = mp.cpu_count() // 2
+
     pool = mp.Pool(processes=cpu_count)
     logs = 'Logs for pre_process run\n\n'
 
-    print(f"Pre processing with {cpu_count} cores...")
+    print(f"Pre processing with {cpu_count} workers...")
     for log in tqdm(pool.imap_unordered(worker, subjects), total=len(subjects), leave=True, position=0):
         logs += log
     print("Done.")

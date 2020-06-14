@@ -12,6 +12,7 @@ RUN ln -sf /usr/bin/python3.6 /usr/bin/python3
 # Install pip and install python enviroment
 RUN apt-get install python3-pip -y
 RUN python3 -m pip install pip --upgrade
+RUN apt-get install -y libsm6 libxext6 libxrender-dev
 RUN python3 -m pip install -r requirements.txt
 
 # Install AMP for mixed precision training
