@@ -1,9 +1,9 @@
 import mlflow
 import numpy as np
-import subprocess
 import argparse
 import cv2 as cv
 
+print("Generating data visualization...")
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--input', type=str, required=True)
@@ -33,10 +33,11 @@ if no_display:
     target_display = np.hstack((target[0, :, :, s], target[1, :, :, s], target[2, :, :, s], target[3, :, :, s]))
     display = np.vstack((display_data, target_display))
 
-    display = (display*255).astype(np.uint8)
+    display = (display * 255).astype(np.uint8)
 
     cv.imwrite("figures/display.png", display)
     mlflow.log_artifact("figures/display.png")
+    print("Visualization saved in figures/display.png")
 else:
     for s in range(data.shape[-1]):
         display_data = np.hstack((data[0, :, :, s], data[1, :, :, s], data[2, :, :, s], data[3, :, :, s]))

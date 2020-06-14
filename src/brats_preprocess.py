@@ -42,7 +42,7 @@ from tqdm import tqdm
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--data_path', default="/home/diedre/Dropbox/bigdata/brats/2020/MICCAI_BraTS2020_TrainingData")
-parser.add_argument('--nworkers', default="auto")
+parser.add_argument('--nworkers', default="auto", type=int)
 args = parser.parse_args()
 DATA_PATH = args.data_path
 
@@ -134,6 +134,7 @@ def search_for_file_in_folder(dict_ref, folder_path, key):
 
 
 if __name__ == "__main__":
+    print("Performing pre-processing, this might take some minutes.")
     keys = ["flair", "t1", "t1ce", "t2", "seg"]
 
     paths = []
@@ -144,7 +145,7 @@ if __name__ == "__main__":
     if args.nworkers != "auto":
         cpu_count = args.nworkers
     else:
-        cpu_count = mp.cpu_count() // 2
+        cpu_count = max(mp.cpu_count() // 2, 2)
 
     pool = mp.Pool(processes=cpu_count)
     logs = 'Logs for pre_process run\n\n'
@@ -152,12 +153,12 @@ if __name__ == "__main__":
     print(f"Pre processing with {cpu_count} workers...")
     for log in tqdm(pool.imap_unordered(worker, subjects), total=len(subjects), leave=True, position=0):
         logs += log
-    print("Done.")
 
     os.makedirs("logs", exist_ok=True)  # for safety
-    logpath = "logs/" + str(datetime.datetime.now()) + ".txt"
+    logpath = "logs/preprocess_" + str(datetime.datetime.now()) + ".txt"
 
     with open(logpath, 'w') as logfile:
         logfile.write(logs)
 
     mlflow.log_artifact(logpath)
+    print(f"Pre-processing done. Logs saved in {logpath}.")
