@@ -73,17 +73,17 @@ The Python 3.6.9 libraries used are, as in the requirements.txt file:
 
 setuptools==41.0.0\
 jupyter==1.0.0\
-numpy==1.18.*\
-scipy==1.4.*\
-scikit-image==0.16.*\
-scikit-learn==0.22.*\
-nibabel==3.1.*\
-pandas==0.25.*\
+numpy==1.18.\*\
+scipy==1.4.\*\
+scikit-image==0.16.\*\
+scikit-learn==0.22.\*\
+nibabel==3.1.\*\
+pandas==0.25.\*\
 mlflow==1.8.0\
-tqdm==4.43.*\
-matplotlib==3.1.*\
-opencv-python==4.2.0.*\
-sparse==0.7.*\
+tqdm==4.43.\*\
+matplotlib==3.1.\*\
+opencv-python==4.2.0.\*\
+sparse==0.7.\*\
 torch==1.5.0\
 pytorch-lightning==0.7.6
 
