@@ -3,6 +3,8 @@ import numpy as np
 import argparse
 import cv2 as cv
 
+mlflow.set_experiment("pre_processing")
+
 print("Generating data visualization...")
 
 parser = argparse.ArgumentParser()

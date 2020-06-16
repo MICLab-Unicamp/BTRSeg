@@ -39,6 +39,7 @@ import argparse
 import datetime
 from tqdm import tqdm
 
+mlflow.set_experiment("pre_processing")
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--data_path', default="/home/diedre/Dropbox/bigdata/brats/2020/MICCAI_BraTS2020_TrainingData")
