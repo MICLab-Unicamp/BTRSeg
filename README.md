@@ -8,7 +8,7 @@ you can have a look at the executable paper in Google Colaboratory following thi
 
 https://colab.research.google.com/drive/1PJiAdfYeaokWFWmFnzbUvZoulSaKODHu?usp=sharing
 
-Note that it is possible to edit src files in Colab, by clicking the folder navigator on the left.
+Note that it is possible to edit src files in Colab, by clicking the folder navigator on the left. Make sure you go to Runtime -> Change Runtime Type and select a GPU to be able to use a GPU.
 
 # Usage with Docker
 
