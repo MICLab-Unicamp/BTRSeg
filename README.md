@@ -1,8 +1,16 @@
 # BTRSeg
 Repository related to the IA369Z reproducible Brain Tumor Segmentation project.
 
+# Usage with Google Colab
 
-# Usage with Docker (recommended)
+Google provides a remote computing free service called Google Colaboratory. Although there are time limits for using a GPU,
+you can have a look at the executable paper in Google Colaboratory following this link:
+
+https://colab.research.google.com/drive/1PJiAdfYeaokWFWmFnzbUvZoulSaKODHu?usp=sharing
+
+Note that it is possible to edit src files in Colab, by clicking the folder navigator on the left.
+
+# Usage with Docker
 
 This work was only tested in Ubuntu 18.04. It may work in Windows if you follow workarounds
 on the internet to run Docker in Windows.
@@ -10,8 +18,9 @@ on the internet to run Docker in Windows.
 ## Requirements
 Ubuntu 18.04\
 Docker >= 19.03.11\
+8 GB RAM or more
 NVidia driver version >= 440.33 (optional for GPU usage)\
-6 GB vRAM or more GPU (optional for GPU usage)
+NVidia GPU supporting CUDA 10.2 (optional for GPU usage, might need to reduce batch size and network size)
 
 ## Docker Installation
 
@@ -88,16 +97,6 @@ torch==1.5.0\
 pytorch-lightning==0.7.6
 
 To be able to use your local GPU in this case you will need to have CUDA 10.2 and the corresponding cuDNN configured correctly (not necessary if using the docker image).
-
-
-# Usage with Google Colab
-
-Google provides a remote computing free service called Google Colaboratory. Although there are time limits for using a GPU,
-you can have a look at the executable paper in Google Colaboratory following this link:
-
-https://colab.research.google.com/drive/1PJiAdfYeaokWFWmFnzbUvZoulSaKODHu?usp=sharing
-
-Note that it is possible to edit src files in Colab, by clicking the folder navigator on the left.
 
 # Reproducibility Notice
 
