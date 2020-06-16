@@ -43,7 +43,7 @@ mlflow.set_experiment("pre_processing")
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--data_path', default="/home/diedre/Dropbox/bigdata/brats/2020/MICCAI_BraTS2020_TrainingData")
-parser.add_argument('--nworkers', default="auto", type=int)
+parser.add_argument('--nworkers', default="auto")
 args = parser.parse_args()
 DATA_PATH = args.data_path
 
@@ -144,7 +144,7 @@ if __name__ == "__main__":
     subjects = ["BraTS20_Training_" + str(i).zfill(3) for i in range(1, 370)]
 
     if args.nworkers != "auto":
-        cpu_count = args.nworkers
+        cpu_count = int(args.nworkers)
     else:
         cpu_count = max(mp.cpu_count() // 2, 2)
 
