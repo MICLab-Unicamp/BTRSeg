@@ -95,7 +95,7 @@ To be able to use your local GPU in this case you will need to have CUDA 10.2 an
 Google provides a remote computing free service called Google Colaboratory. Although there are time limits for using a GPU,
 you can have a look at the executable paper in Google Colaboratory following this link:
 
-https://colab.research.google.com/drive/1qV-FcxMNKOxTCTwYZYmNhEfvM9trXZks?usp=sharing
+https://colab.research.google.com/drive/1PJiAdfYeaokWFWmFnzbUvZoulSaKODHu?usp=sharing
 
 Note that it is possible to edit src files in Colab, by clicking the folder navigator on the left.
 

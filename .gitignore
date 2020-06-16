@@ -1,6 +1,9 @@
 cache
 .vscode
 .trash
+mlruns
+logs
+*.ckpt
 __pycache__
 .ipynb_checkpoints
 *.npz
