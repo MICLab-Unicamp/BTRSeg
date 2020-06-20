@@ -1,4 +1,4 @@
-setuptools==41.0.0
+setuptools
 jupyter==1.0.0
 numpy==1.18.*
 scipy==1.4.*
