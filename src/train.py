@@ -123,7 +123,7 @@ class BRATS3DSegmentation(pl.LightningModule):
 
         print(tqdm_dict)
         if self.hparams.balanced_dice:
-            self.loss.increment_weights()
+            loss_calculator.increment_weights()
 
         return {name + 'loss': avg_loss, 'log': metrics, 'progress_bar': tqdm_dict,
                 name + "WT_dice": metrics[name + "WT_dice"],
