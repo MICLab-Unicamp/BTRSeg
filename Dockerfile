@@ -15,12 +15,16 @@ RUN python3 -m pip install pip --upgrade
 RUN apt-get install -y libsm6 libxext6 libxrender-dev
 RUN python3 -m pip install -r requirements.txt
 
+# Install DLPT package
+COPY dlpt_installer/DLPT-0.0.1-py3-none-any.whl /
+RUN python3 -m pip install DLPT-0.0.1-py3-none-any.whl
+
 # Install AMP for mixed precision training
 RUN apt-get install git -y
 RUN git clone https://github.com/dscarmo/apex
 RUN python3 -m pip install --no-cache-dir ./apex
 
-# Copy start git clone/jupyter start script and setup it
+# Copy git repo/jupyter start script and setup it
 COPY start.sh /home
 RUN chmod +x /home/start.sh
 

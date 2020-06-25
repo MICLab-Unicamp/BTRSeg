@@ -1,10 +1,8 @@
 '''
-Experiment Template Description
-16_gn_radam - Baseline: Increased batch size with float16 precision and group normalization, added radam.
-GN uses more memory so we needed to use 3 BS.
+BTRSeg Experiment
+Change some parameters by looking at the --help
 '''
 EXPERIMENT_NAME = "BTRSeg"
-TAG = "16_gn_radam"
 FINALIZED = False
 
 
@@ -26,17 +24,17 @@ from pytorch_lightning.loggers import MLFlowLogger
 from pytorch_lightning.callbacks import ModelCheckpoint
 
 # DLPT
-from models.unet import UNet
-from metrics.brats import BraTSMetrics
-from loss.dice import DICELoss
-from optimizers.radam import RAdam
-from transforms.to_tensor import ToTensor
-from transforms.patches import ReturnPatch, CenterCrop
-from transforms.intensity import RandomIntensity
-from transforms import Compose
-from datasets.brats import BRATS
-from utils.git import get_git_hash
-from utils.reproducible import deterministic_run
+from DLPT.models.unet import UNet
+from DLPT.metrics.brats import BraTSMetrics
+from DLPT.loss.dice import DICELoss
+from DLPT.optimizers.radam import RAdam
+from DLPT.transforms.to_tensor import ToTensor
+from DLPT.transforms.patches import ReturnPatch, CenterCrop
+from DLPT.transforms.intensity import RandomIntensity
+from DLPT.transforms import Compose
+from DLPT.datasets.brats import BRATS
+from DLPT.utils.git import get_git_hash
+from DLPT.utils.reproducible import deterministic_run
 
 
 class BRATS3DSegmentation(pl.LightningModule):
@@ -209,6 +207,8 @@ if __name__ == "__main__":
                         help="Precision, one of 'full' or 'mixed'.")
     parser.add_argument('-ch', '--channel_factor', type=int, default=4, metavar='',
                         help="The higher this value, the smaller the resulting network. Default is 4.")
+    parser.add_argument('-t', '--tag', type=str, required=True,
+                        help="A description of this run.")
     args = parser.parse_args()
 
     # Logging initialization
@@ -235,7 +235,7 @@ if __name__ == "__main__":
                                       reset_seed=False), RandomIntensity(reset_seed=False),
                           ToTensor(volumetric=True, classify=not segmentation)])
 
-    tags = {"desc": TAG, "commit": get_git_hash()}
+    tags = {"desc": args.tag, "commit": get_git_hash()}
 
     hyperparameters = {"experiment_name": EXPERIMENT_NAME, "type": "segmentation", "achitecture": architecture,
                        "with_aug": True, "final_labels": True, "lr": 0.0005, "wd": 1e-5, "bs": args.batch, "test_bs": 1,
@@ -270,10 +270,10 @@ if __name__ == "__main__":
     ckpt_path = os.path.join(model_folder, "-{epoch}-{val_loss:.4f}-{val_WT_dice:.4f}-{val_TC_dice:.4f}-{val_EC_dice:.4f}")
 
     # Callback initialization
-    checkpoint_callback = ModelCheckpoint(prefix=experiment_name + '_' + TAG, filepath=ckpt_path, monitor="val_loss",
+    checkpoint_callback = ModelCheckpoint(prefix=experiment_name + '_' + tags.desc, filepath=ckpt_path, monitor="val_loss",
                                           mode="min")
     logger = MLFlowLogger(experiment_name=experiment_name, tracking_uri="file:" + log_folder,
-                          tags={"desc": TAG, "commit": get_git_hash(path='.')})
+                          tags=tags)
 
     # PL Trainer initialization
     trainer = Trainer(gpus=0 if args.cpu else 1, precision=hyperparameters["precision"],
