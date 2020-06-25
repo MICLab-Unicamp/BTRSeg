@@ -270,7 +270,7 @@ if __name__ == "__main__":
     ckpt_path = os.path.join(model_folder, "-{epoch}-{val_loss:.4f}-{val_WT_dice:.4f}-{val_TC_dice:.4f}-{val_EC_dice:.4f}")
 
     # Callback initialization
-    checkpoint_callback = ModelCheckpoint(prefix=experiment_name + '_' + tags.desc, filepath=ckpt_path, monitor="val_loss",
+    checkpoint_callback = ModelCheckpoint(prefix=experiment_name + '_' + tags["desc"], filepath=ckpt_path, monitor="val_loss",
                                           mode="min")
     logger = MLFlowLogger(experiment_name=experiment_name, tracking_uri="file:" + log_folder,
                           tags=tags)
