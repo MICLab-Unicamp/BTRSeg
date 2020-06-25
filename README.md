@@ -102,6 +102,10 @@ sparse==0.7.\*\
 torch==1.5.\*\
 pytorch-lightning==0.7.6
 
+Also install DLPT, a personnal package of generic Deep Learning code.
+
+                sudo -H python3 -m pip install dlpt_installer/DLPT.whl
+
 ## Additional requirements
 To be able to use your local GPU in this case you will need to have CUDA 10.2 and the corresponding cuDNN configured correctly.
 To be able to perform 16 bit training in your local enviroment, also install APEX (https://github.com/NVIDIA/apex).
@@ -109,7 +113,7 @@ To be able to perform 16 bit training in your local enviroment, also install APE
 All of this is already configured in the Docker image.
 
 ## Running Executable Paper in Local Enviroment
-Just start a notebook server after cloning this repository with git and open ExecutablePaper.ipynb.
+After having all these requirements configured, just start a notebook server after cloning this repository with git and open ExecutablePaper.ipynb.
 
 # Reproducibility Notice
 

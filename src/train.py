@@ -1,21 +1,18 @@
 '''
-BTRSeg Experiment
-Change some parameters by looking at the --help
+Experiment Description
+BTRSeg architecutre: expansion of the 2D UNet from E2DHipseg to 3D, testing various parameter configurations.
 '''
 EXPERIMENT_NAME = "BTRSeg"
-FINALIZED = False
-
 
 # Standard Library
 import os
 import logging
 import argparse
-from glob import iglob
-from argparse import Namespace
 
 # External Libraries
 import numpy as np
 import torch
+from torch.optim import Adam, SGD
 
 # Pytorch Lightning
 import pytorch_lightning as pl
@@ -26,7 +23,7 @@ from pytorch_lightning.callbacks import ModelCheckpoint
 # DLPT
 from DLPT.models.unet import UNet
 from DLPT.metrics.brats import BraTSMetrics
-from DLPT.loss.dice import DICELoss
+from DLPT.loss.dice import DICELoss, BalancedMultiChannelDICELoss
 from DLPT.optimizers.radam import RAdam
 from DLPT.transforms.to_tensor import ToTensor
 from DLPT.transforms.patches import ReturnPatch, CenterCrop
@@ -45,7 +42,7 @@ class BRATS3DSegmentation(pl.LightningModule):
         self.model = UNet(n_channels=hparams.nin, n_classes=hparams.nout,
                           apply_sigmoid=self.hparams.final_labels, apply_softmax=not(self.hparams.final_labels),
                           residual=True, small=False, bias=False, bn=self.hparams.norm,
-                          dim='3d', use_attention=False, channel_factor=self.hparams.channel_factor)
+                          dim='3d', use_attention=self.hparams.use_attention, channel_factor=self.hparams.channel_factor)
 
     def forward(self, x):
         return self.model(x)
@@ -124,6 +121,8 @@ class BRATS3DSegmentation(pl.LightningModule):
         avg_loss = metrics[name + "loss"]
         tqdm_dict = {name + "loss": avg_loss}
 
+        print(tqdm_dict)
+
         return {name + 'loss': avg_loss, 'log': metrics, 'progress_bar': tqdm_dict,
                 name + "WT_dice": metrics[name + "WT_dice"],
                 name + "TC_dice": metrics[name + "TC_dice"],
@@ -165,24 +164,30 @@ class BRATS3DSegmentation(pl.LightningModule):
     # -----------------------------------------------------------------------------------------------------------------#
 
     def configure_optimizers(self):
-        opt = RAdam(self.model.parameters(), lr=self.hparams.lr, weight_decay=self.hparams.wd)
-        assert opt.__class__.__name__ == self.hparams.opt
+        if self.hparams.opt == "Adam":
+            opt = Adam(self.model.parameters(), lr=self.hparams.lr, weight_decay=self.hparams.wd)
+        elif self.hparams.opt == "RAdam":
+            opt = RAdam(self.model.parameters(), lr=self.hparams.lr, weight_decay=self.hparams.wd)
+        elif self.hparams.opt == "SGD":
+            opt = SGD(self.model.parameters(), lr=self.hparams.lr, weight_decay=self.hparams.wd)
+
         return [opt], [torch.optim.lr_scheduler.ExponentialLR(opt, gamma=0.985)]
 
     def train_dataloader(self):
         dataset = BRATS(year=self.hparams.dataset_year, release="default", group="all", mode="train",
                         transform=transforms, convert_to_eval_format=(self.hparams.nout == 3))
-        return dataset.get_dataloader(batch_size=self.hparams.bs, shuffle=True, num_workers=0 if args.cpu else 4)
+        return dataset.get_dataloader(batch_size=self.hparams.bs, shuffle=True if self.hparams.forced_overfit == 0 else False,
+                                      num_workers=0 if self.hparams.cpu else 4)
 
     def val_dataloader(self):
         dataset = BRATS(year=self.hparams.dataset_year, release="default", group="all", mode="validation",
                         transform=test_transforms, convert_to_eval_format=(self.hparams.nout == 3))
-        return dataset.get_dataloader(batch_size=self.hparams.test_bs, shuffle=False, num_workers=0 if args.cpu else 4)
+        return dataset.get_dataloader(batch_size=self.hparams.test_bs, shuffle=False, num_workers=0 if self.hparams.cpu else 4)
 
     def test_dataloader(self):
         dataset = BRATS(year=self.hparams.dataset_year, release="default", group="all", mode="test",
                         transform=test_transforms, convert_to_eval_format=(self.hparams.nout == 3))
-        return dataset.get_dataloader(batch_size=self.hparams.test_bs, shuffle=False, num_workers=0 if args.cpu else 4)
+        return dataset.get_dataloader(batch_size=self.hparams.test_bs, shuffle=False, num_workers=0 if self.hparams.cpu else 4)
 
 
 test_transforms = Compose([CenterCrop(128, 128, 128, segmentation=True, assert_big_enough=True),
@@ -190,27 +195,6 @@ test_transforms = Compose([CenterCrop(128, 128, 128, segmentation=True, assert_b
 
 
 if __name__ == "__main__":
-    # Argparse
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-c', '--cpu', action='store_true',
-                        help="Uses the CPU. If not present will try to use a GPU.")
-    parser.add_argument('-f', '--fast', action='store_true',
-                        help="Performs training over a small part of the data, useful for a quick test.")
-    parser.add_argument('-e', '--epochs', type=int, default=300, metavar='',
-                        help="How long should the training be. Defaults to 300.")
-    parser.add_argument('-d', '--data', type=str, default="data/MICCAI_BraTS2020_TrainingData", metavar='',
-                        help=("Where the data is, by default its in data/MICCAI_BraTS2020_TrainingData. Make sure you have "
-                              "executed the pre-processing."))
-    parser.add_argument('-b', '--batch', type=int, default=3, metavar='',
-                        help="Batch size. Default 3.")
-    parser.add_argument('-p', '--precision', type=str, default="mixed", metavar='',
-                        help="Precision, one of 'full' or 'mixed'.")
-    parser.add_argument('-ch', '--channel_factor', type=int, default=4, metavar='',
-                        help="The higher this value, the smaller the resulting network. Default is 4.")
-    parser.add_argument('-t', '--tag', type=str, required=True,
-                        help="A description of this run.")
-    args = parser.parse_args()
-
     # Logging initialization
     debug = False
     FORMAT = '%(asctime)s %(levelname)s: %(message)s'
@@ -220,72 +204,82 @@ if __name__ == "__main__":
     model_folder = "models"
     log_folder = "mlruns"
 
-    segmentation = True
     loss_calculator = DICELoss(volumetric=True, per_channel=True)
     metric_calculator = BraTSMetrics(dice_only=True)
-    opt_name = "RAdam"
 
-    forced_overfit = False
-    channel_factor = args.channel_factor
-    nin = 4  # flair, t1, t1ce, t2
-    nout = 3  # WT, TC, EC
-    architecture = EXPERIMENT_NAME
-
-    transforms = Compose([ReturnPatch(patch_size=(128, 128, 128), segmentation=segmentation, fullrandom=True,
+    transforms = Compose([ReturnPatch(patch_size=(128, 128, 128), segmentation=True, fullrandom=True,
                                       reset_seed=False), RandomIntensity(reset_seed=False),
-                          ToTensor(volumetric=True, classify=not segmentation)])
+                          ToTensor(volumetric=True, classify=False)])
+    test_transforms = Compose([CenterCrop(128, 128, 128, segmentation=True, assert_big_enough=True),
+                               ToTensor(volumetric=True, classify=False)])
 
-    tags = {"desc": args.tag, "commit": get_git_hash()}
+    parser = argparse.ArgumentParser()
+    parser.add_argument(dest="desc", type=str)
 
-    hyperparameters = {"experiment_name": EXPERIMENT_NAME, "type": "segmentation", "achitecture": architecture,
-                       "with_aug": True, "final_labels": True, "lr": 0.0005, "wd": 1e-5, "bs": args.batch, "test_bs": 1,
-                       "max_epochs": args.epochs,
-                       "channel_factor": channel_factor, "nin": nin, "nout": nout,
-                       "transforms": str(transforms), "test_transforms": str(test_transforms), "use_attention": False,
-                       "norm": "group", "rseed": 4321, "opt": opt_name, "loss": loss_calculator.name, "desc": tags["desc"],
-                       "metric": metric_calculator.name,
-                       "forced_overfit": 0.05 if args.fast else 0,
-                       "precision": 16 if args.precision == "mixed" else 32,
-                       "dataset": "BRATS", "dataset_year": "2020", "splits": "(0.7, 0.1, 0.2)",
-                       "kfold": "None", "fold": "None"}
+    # Variables to experimented with
+    parser.add_argument("-bs", type=int, required=True, help="Batch size.")
+    parser.add_argument("-norm", type=str, required=True, help="batch, norm or none.")
+    parser.add_argument("-opt", type=str, required=True, help="Adam or RAdam.")
+    parser.add_argument("-precision", type=int, required=True, help="16 (mixed) or 32 (full)")
+    parser.add_argument("-balanced_dice", action='store_true', help="Enables the custom balanced dice.")
 
-    # Sets folder according to parameters.
-    assert os.path.isdir(args.data), "Data source doesn't exist! Have you performed downloading/unpack/preprocessing steps?"
-    assert len(list(iglob(os.path.join(args.data, "**", "*.npz"), recursive=True))) == 369, ("there should be 369 npzs in "
-                                                                                             "data folder. Something is "
-                                                                                             "wrong with data.")
-    BRATS.PATHS[hyperparameters["dataset_year"]]["default"] = args.data
+    # Fixed arguments
+    parser.add_argument("-loss", type=str, default=loss_calculator.__class__.__name__)
+    parser.add_argument("-metric", type=str, default=metric_calculator.__class__.__name__)
+    parser.add_argument("-type", type=str, default="segmentation")
+    parser.add_argument("-debug", action="store_true")
+    parser.add_argument("-cpu", action="store_true")
+    parser.add_argument("-final_labels", type=bool, default=True)
+    parser.add_argument("-lr", type=float, default=0.0005)
+    parser.add_argument("-wd", type=float, default=1e-5)
+    parser.add_argument("-test_bs", type=int, default=1)
+    parser.add_argument("-max_epochs", type=int, default=300)
+    parser.add_argument("-channel_factor", type=int, default=4)
+    parser.add_argument("-nin", type=int, default=4)  # flair, t1, t1ce, t2
+    parser.add_argument("-nout", type=int, default=3)  # WT, TC, ET
+    parser.add_argument("-transforms", type=str, default=str(transforms))
+    parser.add_argument("-test_transforms", type=str, default=str(test_transforms))
+    parser.add_argument("-use_attention", action='store_true')
+    parser.add_argument("-rseed", type=int, default=4321)
+    parser.add_argument("-forced_overfit", type=float, default=0)
+    parser.add_argument("-dataset", type=str, default="BRATS")
+    parser.add_argument("-dataset_year", type=str, default="2020")
+    parser.add_argument("-splits", type=str, default="(0.7, 0.1, 0.2)")
+    parser.add_argument("-kfold", type=str, default="None")
+    parser.add_argument("-fold", type=str, default="None")
+
+    hyperparameters = parser.parse_args()
+
+    if hyperparameters.balanced_dice:
+        print("Setting up BalancedMultiChannelDICELoss")
+        loss_calculator = BalancedMultiChannelDICELoss(volumetric=True)
+        hyperparameters.loss = loss_calculator.__class__.__name__
 
     print("Experiment Hyperparameters:\n")
-    for key, parameter in hyperparameters.items():
-        print("{}: {}".format(key, parameter))
+    print(vars(hyperparameters))
 
     # # Initialize Trainer
     # Instantiate model
-    model = BRATS3DSegmentation(Namespace(**hyperparameters))
+    model = BRATS3DSegmentation(hyperparameters)
 
     # Folder management
-    experiment_name = hyperparameters["experiment_name"]
+    experiment_name = EXPERIMENT_NAME
     os.makedirs(model_folder, exist_ok=True)
-    ckpt_path = os.path.join(model_folder, "-{epoch}-{val_loss:.4f}-{val_WT_dice:.4f}-{val_TC_dice:.4f}-{val_EC_dice:.4f}")
+    ckpt_path = os.path.join(model_folder, "-{epoch}-{val_loss:.4f}-{val_WT_dice:.4f}-{val_TC_dice:.4f}-{val_ET_dice:.4f}")
 
     # Callback initialization
-    checkpoint_callback = ModelCheckpoint(prefix=experiment_name + '_' + tags["desc"], filepath=ckpt_path, monitor="val_loss",
+    checkpoint_callback = ModelCheckpoint(prefix=experiment_name + '_' + hyperparameters.desc, filepath=ckpt_path, monitor="val_loss",
                                           mode="min")
     logger = MLFlowLogger(experiment_name=experiment_name, tracking_uri="file:" + log_folder,
-                          tags=tags)
+                          tags={"desc": hyperparameters.desc, "commit": get_git_hash()})
 
     # PL Trainer initialization
-    trainer = Trainer(gpus=0 if args.cpu else 1, precision=hyperparameters["precision"],
-                      checkpoint_callback=checkpoint_callback, early_stop_callback=False, logger=logger,
-                      max_epochs=hyperparameters["max_epochs"], fast_dev_run=False, progress_bar_refresh_rate=1,
-                      overfit_pct=hyperparameters["forced_overfit"])
+    trainer = Trainer(gpus=0 if hyperparameters.cpu else 1, precision=hyperparameters.precision, checkpoint_callback=checkpoint_callback,
+                      early_stop_callback=False, logger=logger, max_epochs=hyperparameters.max_epochs, deterministic=True,
+                      fast_dev_run=hyperparameters.debug, progress_bar_refresh_rate=1, overfit_pct=hyperparameters.forced_overfit)
 
-    # Training Loop
-    if not FINALIZED:  # Change to train when you want to train and
-        seed = hyperparameters["rseed"]
-        print(f"Applying random seed {seed}")
-        deterministic_run(seed)
-        trainer.fit(model)
-    else:
-        print("This training is finalized. Are you sure you running the correct file?")
+    # # Training Loop
+    seed = hyperparameters.rseed
+    print(f"Applying random seed {seed}")
+    deterministic_run(seed)
+    trainer.fit(model)
