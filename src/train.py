@@ -34,6 +34,9 @@ from DLPT.utils.git import get_git_hash
 from DLPT.utils.reproducible import deterministic_run
 
 
+BRATS.PATHS["2020"]["default"] = "data/MICCAI_BraTS2020_TrainingData"
+
+
 class BRATS3DSegmentation(pl.LightningModule):
     def __init__(self, hparams):
         super(BRATS3DSegmentation, self).__init__()
