@@ -122,6 +122,8 @@ class BRATS3DSegmentation(pl.LightningModule):
         tqdm_dict = {name + "loss": avg_loss}
 
         print(tqdm_dict)
+        if self.hparams.balanced_dice:
+            self.loss.increment_weights()
 
         return {name + 'loss': avg_loss, 'log': metrics, 'progress_bar': tqdm_dict,
                 name + "WT_dice": metrics[name + "WT_dice"],
@@ -252,7 +254,7 @@ if __name__ == "__main__":
 
     if hyperparameters.balanced_dice:
         print("Setting up BalancedMultiChannelDICELoss")
-        loss_calculator = BalancedMultiChannelDICELoss(volumetric=True)
+        loss_calculator = BalancedMultiChannelDICELoss(hyperparameters.max_epochs, True)
         hyperparameters.loss = loss_calculator.__class__.__name__
 
     print("Experiment Hyperparameters:\n")
