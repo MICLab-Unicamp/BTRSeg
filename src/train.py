@@ -38,9 +38,10 @@ BRATS.PATHS["2020"]["default"] = "data/MICCAI_BraTS2020_TrainingData"
 
 
 class BRATS3DSegmentation(pl.LightningModule):
-    def __init__(self, hparams):
+    def __init__(self, hparams, loss, metric):
         super(BRATS3DSegmentation, self).__init__()
-
+        self.loss_calculator = loss
+        self.metric_calculator = metric
         self.hparams = hparams
         self.model = UNet(n_channels=hparams.nin, n_classes=hparams.nout,
                           apply_sigmoid=self.hparams.final_labels, apply_softmax=not(self.hparams.final_labels),
@@ -56,7 +57,7 @@ class BRATS3DSegmentation(pl.LightningModule):
         '''
         x, y, _, _, _ = batch
         y_hat = self.forward(x)
-        loss = loss_calculator(y_hat, y)  # DICE Loss per channel mean
+        loss = self.loss_calculator(y_hat, y)  # DICE Loss per channel mean
 
         tensorboard_logs = {'loss': loss}
 
@@ -68,8 +69,8 @@ class BRATS3DSegmentation(pl.LightningModule):
         '''
         x, y, _, _, _ = batch
         y_hat = self.forward(x)
-        loss = loss_calculator(y_hat, y)  # DICE Loss per channel mean
-        metrics = metric_calculator(y_hat, y)
+        loss = self.loss_calculator(y_hat, y)  # DICE Loss per channel mean
+        metrics = self.metric_calculator(y_hat, y)
         metrics["loss"] = loss
 
         return metrics
@@ -80,8 +81,8 @@ class BRATS3DSegmentation(pl.LightningModule):
         '''
         x, y, _, _, _ = batch
         y_hat = self.forward(x)
-        loss = loss_calculator(y_hat, y)  # DICE Loss per channel mean
-        metrics = metric_calculator(y_hat, y)
+        loss = self.loss_calculator(y_hat, y)  # DICE Loss per channel mean
+        metrics = self.metric_calculator(y_hat, y)
         metrics["loss"] = loss
 
         return metrics
@@ -197,7 +198,8 @@ class BRATS3DSegmentation(pl.LightningModule):
 
 test_transforms = Compose([CenterCrop(128, 128, 128, segmentation=True, assert_big_enough=True),
                            ToTensor(volumetric=True, classify=False)])
-
+model_folder = "models"
+log_folder = "mlruns"
 
 if __name__ == "__main__":
     # Logging initialization
@@ -205,9 +207,6 @@ if __name__ == "__main__":
     FORMAT = '%(asctime)s %(levelname)s: %(message)s'
     logging.basicConfig(level=logging.DEBUG if debug else logging.INFO, format=FORMAT)
     logging.info("Logging initialized with debug={}".format(debug))
-
-    model_folder = "models"
-    log_folder = "mlruns"
 
     loss_calculator = DICELoss(volumetric=True, per_channel=True)
     metric_calculator = BraTSMetrics(dice_only=True)
@@ -265,7 +264,7 @@ if __name__ == "__main__":
 
     # # Initialize Trainer
     # Instantiate model
-    model = BRATS3DSegmentation(hyperparameters)
+    model = BRATS3DSegmentation(hyperparameters, loss=loss_calculator, metric=metric_calculator)
 
     # Folder management
     experiment_name = EXPERIMENT_NAME

@@ -5,6 +5,11 @@ Repository related to the IA369Z reproducible Brain Tumor Segmentation project.
 The notebooks will download the data automatically from a Figshare private link to the data folder.
 Note that this data should not be distributed without first submitting a data request in the original source: https://www.med.upenn.edu/cbica/brats2020/
 
+# DLPT
+Note that the src code imports from a library named "DLPT". This is my personnal generic Deep Learning code package. It is installed
+automatically in the Colab and Docker enviroments. If you want to take a look a its code, a tar file with the code is in the dlpt_installer
+folder.
+
 # Usage with Google Colab
 
 Google provides a remote computing free service called Google Colaboratory. Although there are time limits for using a GPU,

@@ -11,7 +11,7 @@ mlflow.set_experiment("Predict")
 
 with torch.set_grad_enabled(False):
     input_path = argv[1]
-    best_model = BRATS3DSegmentation.load_from_checkpoint("models/best_model.ckpt")
+    best_model = BRATS3DSegmentation.load_from_checkpoint("models/best_model.ckpt", loss=None, metric=None)
     best_model.eval()
     npz = np.load(input_path)
     data = npz["data"]
