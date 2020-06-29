@@ -28,12 +28,15 @@ RUN chmod +x /home/start.sh
 COPY data/data.zip /home
 WORKDIR /home/
 
+# Be able to see Jupyter citations
+RUN python3 -m pip install cite2c
+RUN python3 -m cite2c.install
+
 # Startup command
 CMD ["./start.sh"]
 
 # Build command: sudo docker build -t dscarmo/btrseg .
-# Debug command: sudo docker run -it --rm --gpus all dscarmo/btrseg
-# Release command: sudo docker run -p 8888:8888 --gpus all dscarmo/btrseg
+# Release command: sudo docker run -p 8888:8888 --shm-size 256m --gpus all dscarmo/btrseg
 # Kill running containers (stop jupyter server): sudo docker kill $(sudo docker ps -q)
 # Remove dangling images: sudo docker image prune
 # Remove dangling containers: sudo docker container prune

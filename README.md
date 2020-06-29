@@ -15,7 +15,7 @@ folder.
 Google provides a remote computing free service called Google Colaboratory. Although there are time limits for using a GPU,
 you can have a look at the executable paper in Google Colaboratory following this link:
 
-https://colab.research.google.com/drive/1PJiAdfYeaokWFWmFnzbUvZoulSaKODHu?usp=sharing
+https://colab.research.google.com/drive/1Qc-M7Ra-jck-ba8rRQ0n__FvMv_jwzQm?usp=sharing (need UNICAMP account to open)
 
 Make sure you go to Runtime -> Change Runtime Type and select a GPU to be able to use a GPU.
 
@@ -110,6 +110,12 @@ pytorch-lightning==0.7.6
 Also install DLPT, a personnal package of generic Deep Learning code.
 
                 sudo -H python3 -m pip install dlpt_installer/DLPT.whl
+
+## In notebook citations
+A small detail, to be able to see citations in the Jupyter Notebook (for local system use), perform the following commands:
+
+                sudo -H python3 -m pip install cite2c
+                sudo -H python3 -m cite2c.install
 
 ## Additional requirements
 To be able to use your local GPU in this case you will need to have CUDA 10.2 and the corresponding cuDNN configured correctly.
