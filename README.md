@@ -45,7 +45,7 @@ Open terminal and pull the image from docker hub (10.6 GB, includes data):
 
 Make sure you are not running a jupyter server yourself on port 8888, and run this command:
 
-        sudo docker run -p 8888:8888 --gpus all dscarmo/btrseg
+        sudo docker run -p 8888:8888 --shm-size 256m --gpus all dscarmo/btrseg
 
 This will start a jupyter notebook server in the image enviroment. Go to your browser and access the link reported
 by the jupyter initialization, which will have the correct token for security (example link in red bellow).
