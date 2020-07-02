@@ -27,7 +27,12 @@ print(data.shape, target.shape, age, survival, tumor_type, res)
 
 display_str = f"Age: {age}, survival: {survival}, tumor_type: {tumor_type}, res: {res}"
 
-target = target.astype(np.float32)
+if target == "unk":
+    print("Didn't find target information.")
+    target = data
+else:
+    target = target.astype(np.float32)
+
 
 if no_display:
     s = 60

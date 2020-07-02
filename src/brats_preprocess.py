@@ -44,6 +44,7 @@ mlflow.set_experiment("pre_processing")
 parser = argparse.ArgumentParser()
 parser.add_argument('--data_path', default="/home/diedre/Dropbox/bigdata/brats/2020/MICCAI_BraTS2020_TrainingData")
 parser.add_argument('--nworkers', default="auto")
+parser.add_argument('--mode', default="train")
 args = parser.parse_args()
 DATA_PATH = args.data_path
 
@@ -56,14 +57,22 @@ def worker(subject):
     survival_csv = pd.read_csv(os.path.join(DATA_PATH, "survival_info.csv"))
     grade_csv = pd.read_csv(os.path.join(DATA_PATH, "name_mapping.csv"))
 
-    try:
-        survival_row = survival_csv.loc[survival_csv['Brats20ID'] == subject]
+    survival_row = survival_csv.loc[survival_csv['Brats20ID'] == subject]
 
+    try:
         survival = survival_row['Survival_days'].values[0]
+    except Exception:
+        survival = 'unk'
+
+    try:
         age = survival_row['Age'].values[0]
+    except Exception:
+        age = 'unk'
+
+    try:
         res = survival_row['Extent_of_Resection'].values[0]
     except Exception:
-        survival, age, res = 'unk', 'unk', 'unk'
+        res = 'unk'
 
     try:
         tumor_type = grade_csv.loc[grade_csv['BraTS_2020_subject_ID'] == subject]['Grade'].values[0]
@@ -141,7 +150,14 @@ if __name__ == "__main__":
     paths = []
     folder_list = []
 
-    subjects = ["BraTS20_Training_" + str(i).zfill(3) for i in range(1, 370)]
+    if args.mode == "train":
+        subjects = ["BraTS20_Training_" + str(i).zfill(3) for i in range(1, 370)]
+    elif args.mode == "val":
+        subjects = ["BraTS20_Validation_" + str(i).zfill(3) for i in range(1, 126)]
+    else:
+        raise ValueError("mode invalid")
+
+    assert len(subjects) > 0
 
     if args.nworkers != "auto":
         cpu_count = int(args.nworkers)
